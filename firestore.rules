@@ -1,0 +1,199 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default Deny All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'harmonyestampadosr@gmail.com'
+      );
+    }
+
+    // Admins Collection
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && isValidId(userId);
+      allow update: if (isOwner(userId) || isAdmin()) && isValidId(userId);
+      allow delete: if isAdmin();
+    }
+
+    // Projects Collection (Section 5: Proyectos privados y compartidos)
+    match /projects/{projectId} {
+      allow get: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Stored Files Collection (Section 4: Almacenamiento organizado por carpetas)
+    match /files/{fileId} {
+      allow get: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Designs Collection
+    match /designs/{designId} {
+      allow get, list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Customers Collection
+    match /customers/{customerId} {
+      allow get, list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Orders Collection (Client and Admin access)
+    match /orders/{orderId} {
+      allow get, list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || resource.data.customerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && (request.resource.data.ownerId == request.auth.uid || request.resource.data.customerId == request.auth.uid);
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || resource.data.customerId == request.auth.uid || isAdmin());
+    }
+
+    // Quotes Collection (Client and Admin access)
+    match /quotes/{quoteId} {
+      allow get, list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || resource.data.clientId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && (request.resource.data.ownerId == request.auth.uid || request.resource.data.clientId == request.auth.uid);
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || resource.data.clientId == request.auth.uid || isAdmin());
+    }
+
+    // Inventory Collection
+    match /inventory/{itemId} {
+      allow get, list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Machines Collection
+    match /machines/{machineId} {
+      allow get, list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Garments Collection (Catálogo Profesional de Prendas)
+    match /garments/{garmentId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Custom Technique Sheets Collection (Fichas Técnicas Personalizadas de Taller)
+    match /customTechniqueSheets/{sheetId} {
+      allow get, list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Production Logs Collection (Registro de Trabajos de Taller)
+    match /productionLogs/{logId} {
+      allow get, list: if isSignedIn() && (resource.data.operatorUid == request.auth.uid || resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && (resource.data.operatorUid == request.auth.uid || isAdmin());
+    }
+
+    // Production Profiles Collection (Perfiles de Máquinas y Materiales)
+    match /productionProfiles/{profileId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Inventory Movements Collection (Registro de Entradas y Salidas de Stock)
+    match /inventoryMovements/{movementId} {
+      allow get, list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Production Tasks Collection (Asignación y Planificación de Taller)
+    match /productionTasks/{taskId} {
+      allow get, list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Store Products Collection (Catálogo Comercial Público)
+    match /storeProducts/{productId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Catalog Designs Collection (Diseños Oficiales de Tienda)
+    match /catalogDesigns/{designId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Client Customizations Collection (Personalizaciones Privadas de cada Cliente)
+    match /clientCustomizations/{customizationId} {
+      allow get, list: if isSignedIn() && (resource.data.clientId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.clientId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.clientId == request.auth.uid || isAdmin());
+    }
+
+    // Library Resources Collection (Recursos de la Biblioteca)
+    match /libraryResources/{resourceId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Library Folders Collection
+    match /libraryFolders/{folderId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Learning Courses Collection
+    match /learningCourses/{courseId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Learning Progress Collection (Progreso Privado por Usuario)
+    match /learningProgress/{progressId} {
+      allow get, list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Learning Evaluations Collection (Calificaciones de Cursos por Usuario)
+    match /learningEvaluations/{evaluationId} {
+      allow get, list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix Remix ESTAMPAPRO 360°",
+  "description": "Estudio inteligente de diseño, simulación 3D y producción textil.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

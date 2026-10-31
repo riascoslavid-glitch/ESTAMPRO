@@ -1,0 +1,378 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Perfil de usuario del sistema ESTAMPAPRO 360° con rol asignado.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "ID de usuario Firebase Auth" },
+        "email": { "type": "string", "description": "Correo electrónico verificado" },
+        "displayName": { "type": "string", "description": "Nombre completo" },
+        "role": { 
+          "type": "string", 
+          "enum": ["administrador", "disenador", "operador", "vendedor", "cliente"],
+          "description": "Rol de acceso del usuario"
+        },
+        "createdAt": { "type": "string", "description": "Fecha de registro ISO" },
+        "photoURL": { "type": "string", "description": "URL de avatar" },
+        "emailVerified": { "type": "boolean", "description": "Estado de verificación de correo" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Proyecto textil con capas, prendas, artes y configuración.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "ownerEmail": { "type": "string" },
+        "clientName": { "type": "string" },
+        "clientId": { "type": "string" },
+        "garmentName": { "type": "string" },
+        "garmentColor": { "type": "string" },
+        "garmentColorHex": { "type": "string" },
+        "techniqueId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "status": { "type": "string" },
+        "layers": { "type": "array" },
+        "locations": { "type": "array" },
+        "designs": { "type": "array" },
+        "settings": { "type": "object" },
+        "autoSavedAt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "title", "ownerId"]
+    },
+    "Design": {
+      "title": "Design",
+      "description": "Diseño o arte textil con información de separación cromática y capas.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "projectId": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "format": { "type": "string" },
+        "resolutionDpi": { "type": "number" },
+        "colorCount": { "type": "number" },
+        "colorSeparations": { "type": "array" },
+        "fileUrl": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "ownerId"]
+    },
+    "StoredFile": {
+      "title": "StoredFile",
+      "description": "Archivo original o de trabajo almacenado con carpetas y asociación a proyectos.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "sizeBytes": { "type": "number" },
+        "mimeType": { "type": "string" },
+        "extension": { "type": "string" },
+        "folder": { "type": "string" },
+        "projectId": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "url": { "type": "string" },
+        "dataUri": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "ownerId", "folder"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Ficha comercial del cliente o marca textil.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "ownerId"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Orden de trabajo textil para el taller de estampado.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "projectId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "techniqueId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "totalPrice": { "type": "number" },
+        "stage": { "type": "string" },
+        "deadline": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "ownerId", "techniqueId"]
+    },
+    "Quote": {
+      "title": "Quote",
+      "description": "Presupuesto o cotización de producción textil.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "clientName": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "tax": { "type": "number" },
+        "total": { "type": "number" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "ownerId"]
+    },
+    "InventoryItem": {
+      "title": "InventoryItem",
+      "description": "Prenda en blanco, tinta o insumo en bodega.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "stock": { "type": "number" },
+        "minAlertStock": { "type": "number" },
+        "unit": { "type": "string" },
+        "cost": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "ownerId"]
+    },
+    "Machine": {
+      "title": "Machine",
+      "description": "Máquina de taller (pulpo, prensa térmica, impresora DTF).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "status": { "type": "string" },
+        "brand": { "type": "string" },
+        "lastMaintenance": { "type": "string" }
+      },
+      "required": ["id", "name", "ownerId"]
+    },
+    "StoreProduct": {
+      "title": "StoreProduct",
+      "description": "Producto publicado en la tienda con precios, tallas y ficha técnica.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "garmentId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "isPublished": { "type": "boolean" },
+        "basePrice": { "type": "number" },
+        "volumeTiers": { "type": "array" },
+        "defaultTechnique": { "type": "string" },
+        "featured": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "garmentId", "name", "basePrice"]
+    },
+    "CatalogDesign": {
+      "title": "CatalogDesign",
+      "description": "Diseños públicos curados del taller disponibles para los clientes.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "previewUrl": { "type": "string" },
+        "isPublic": { "type": "boolean" },
+        "recommendedTechnique": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "title", "previewUrl"]
+    },
+    "ClientCustomization": {
+      "title": "ClientCustomization",
+      "description": "Proyecto privado de personalización de prenda exclusivo de cada cliente.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clientId": { "type": "string" },
+        "clientEmail": { "type": "string" },
+        "title": { "type": "string" },
+        "garmentId": { "type": "string" },
+        "colorHex": { "type": "string" },
+        "customText": { "type": "string" },
+        "uploadedDesignUrl": { "type": "string" },
+        "placement": { "type": "string" },
+        "sizes": { "type": "array" },
+        "totalUnits": { "type": "number" },
+        "estimatedTotal": { "type": "number" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "clientId", "garmentId"]
+    },
+    "LibraryResource": {
+      "title": "LibraryResource",
+      "description": "Recurso gráfico vectorial, tipografía o textura de la biblioteca profesional.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "format": { "type": "string" },
+        "folderId": { "type": "string" },
+        "dataUri": { "type": "string" },
+        "previewUrl": { "type": "string" },
+        "isFavorite": { "type": "boolean" },
+        "permission": { "type": "string", "enum": ["publico", "taller", "privado", "cliente"] },
+        "ownerId": { "type": "string" },
+        "isCustom": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "title", "category", "format"]
+    },
+    "LibraryFolder": {
+      "title": "LibraryFolder",
+      "description": "Carpeta organizativa de la biblioteca de recursos gráficos.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "color": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "LearningCourse": {
+      "title": "LearningCourse",
+      "description": "Curso estructurado con lecciones y evaluaciones en el centro de aprendizaje.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "level": { "type": "string" },
+        "durationMinutes": { "type": "number" },
+        "lessonsCount": { "type": "number" },
+        "isPublished": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "title", "category"]
+    },
+    "LearningProgress": {
+      "title": "LearningProgress",
+      "description": "Avance del usuario en cursos, lecciones completadas y favoritos.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "courseId": { "type": "string" },
+        "completedLessonIds": { "type": "array" },
+        "isFavorite": { "type": "boolean" },
+        "lastLessonId": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "courseId"]
+    },
+    "LearningEvaluation": {
+      "title": "LearningEvaluation",
+      "description": "Registro de cuestionarios y exámenes superados con puntaje.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "courseId": { "type": "string" },
+        "scorePercent": { "type": "number" },
+        "passed": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "courseId", "scorePercent"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Perfiles de usuario y roles de acceso."
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Proyectos de estampado con prendas, artes y configuraciones."
+    },
+    "/designs/{designId}": {
+      "schema": "Design",
+      "description": "Diseños textiles, capas y separaciones cromáticas."
+    },
+    "/files/{fileId}": {
+      "schema": "StoredFile",
+      "description": "Bóveda de archivos de trabajo organizados en carpetas."
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Directorio de clientes de taller."
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Órdenes de producción y estados de taller."
+    },
+    "/quotes/{quoteId}": {
+      "schema": "Quote",
+      "description": "Cotizaciones y presupuestos emitidos."
+    },
+    "/inventory/{itemId}": {
+      "schema": "InventoryItem",
+      "description": "Insumos, tintas y blanks en bodega."
+    },
+    "/machines/{machineId}": {
+      "schema": "Machine",
+      "description": "Maquinaria y prensas térmicas de taller."
+    },
+    "/customTechniqueSheets/{sheetId}": {
+      "schema": "CustomTechniqueSheet",
+      "description": "Fichas técnicas personalizadas y calibraciones de taller."
+    },
+    "/storeProducts/{productId}": {
+      "schema": "StoreProduct",
+      "description": "Productos publicados en la tienda comercial."
+    },
+    "/catalogDesigns/{designId}": {
+      "schema": "CatalogDesign",
+      "description": "Diseños oficiales disponibles en la tienda."
+    },
+    "/clientCustomizations/{customizationId}": {
+      "schema": "ClientCustomization",
+      "description": "Proyectos y diseños personalizados privados de cada cliente."
+    },
+    "/libraryResources/{resourceId}": {
+      "schema": "LibraryResource",
+      "description": "Recursos gráficos de la biblioteca profesional."
+    },
+    "/libraryFolders/{folderId}": {
+      "schema": "LibraryFolder",
+      "description": "Carpetas de organización de la biblioteca gráfica."
+    },
+    "/learningCourses/{courseId}": {
+      "schema": "LearningCourse",
+      "description": "Cursos formativos de técnicas textiles y serigráficas."
+    },
+    "/learningProgress/{progressId}": {
+      "schema": "LearningProgress",
+      "description": "Progreso y lecciones completadas por usuario."
+    },
+    "/learningEvaluations/{evaluationId}": {
+      "schema": "LearningEvaluation",
+      "description": "Historial de evaluaciones y calificaciones de cursos."
+    }
+  }
+}
